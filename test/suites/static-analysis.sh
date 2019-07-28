@@ -12,7 +12,7 @@ test_static_analysis_go() {
     ## Functions starting by empty line
     OUT=$(grep -Rrn --exclude-dir=vendor "^$" -B1 . | grep "func " | grep -v "}$" || true)
     if [ -n "${OUT}" ]; then
-      printf "ERROR: Functions must not start with an empty line: \n%s" "${OUT}"
+      printf "ERROR: Functions must not start with an empty line: \\n%s" "${OUT}"
       false
     fi
 
