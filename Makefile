@@ -1,8 +1,7 @@
 REPO_PATH = github.com/bicycolet/bicycolet
 
 setup:
-	GO111MODULE=on
-	go get -u $(REPO_PATH)...
+	GO111MODULE=on go get -u $(REPO_PATH)...
 
 build: bin/bicycolet
 
