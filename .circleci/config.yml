@@ -12,6 +12,11 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: "Setup go mod"
+          command: |
+            echo 'export GO111MODULE=on' >> $BASH_ENV
+
       - run: sudo apt update
       - run: sudo apt install curl jq shellcheck make
       - run: make setup
