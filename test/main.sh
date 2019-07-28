@@ -88,6 +88,7 @@ fi
 
 run_test test_static_analysis_go "running static analysis for go"
 run_test test_static_analysis_shell "running static analysis for shell"
+run_test test_check_unit_tests "running unit tests"
 run_test test_check_version "checking version"
 
 TEST_RESULT=success
