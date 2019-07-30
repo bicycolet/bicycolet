@@ -12,6 +12,7 @@ import (
 	"github.com/bicycolet/bicycolet/internal/db/query"
 	"github.com/bicycolet/bicycolet/internal/db/schema"
 	"github.com/bicycolet/bicycolet/internal/fsys"
+	"github.com/bicycolet/bicycolet/internal/testing"
 	"github.com/pkg/errors"
 )
 
@@ -515,9 +516,13 @@ func newFileSystem(t *testing.T) fsys.FileSystem {
 	return fsys.NewVirtualFileSystem()
 }
 
-// Return a new in-memory SQLite database.
+// Return a new in-memory postgres database.
 func newDB(t *testing.T) database.DB {
-	db, err := sql.Open(database.DriverName(), connectionInfo())
+	connInfo, err := testing.ConnectionInfo()
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+	db, err := sql.Open(database.DriverName(), connInfo.String())
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}

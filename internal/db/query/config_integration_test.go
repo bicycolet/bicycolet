@@ -9,6 +9,7 @@ import (
 
 	"github.com/bicycolet/bicycolet/internal/db/database"
 	"github.com/bicycolet/bicycolet/internal/db/query"
+	"github.com/bicycolet/bicycolet/internal/testing"
 	_ "github.com/lib/pq"
 )
 
@@ -93,10 +94,14 @@ func TestDeleteConfig_Delete(t *testing.T) {
 	}
 }
 
-// Return a new transaction against an in-memory SQLite database with a single
+// Return a new transaction against an in-memory postgres database with a single
 // test table populated with a few rows.
 func newTxForConfig(t *testing.T) (database.Tx, func()) {
-	db, err := sql.Open(database.DriverName(), connectionInfo())
+	connInfo, err := testing.ConnectionInfo()
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+	db, err := sql.Open(database.DriverName(), connInfo.String())
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
