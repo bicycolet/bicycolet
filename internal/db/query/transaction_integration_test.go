@@ -9,7 +9,7 @@ import (
 
 	"github.com/bicycolet/bicycolet/internal/db/database"
 	"github.com/bicycolet/bicycolet/internal/db/query"
-	"github.com/bicycolet/bicycolet/internal/testing"
+	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 	"github.com/pkg/errors"
 )
 
@@ -60,7 +60,7 @@ func TestTransaction_FunctionError(t *testing.T) {
 
 // Return a new in-memory postgres database.
 func newDB(t *testing.T) database.DB {
-	connInfo, err := testing.ConnectionInfo()
+	connInfo, err := internaltesting.ConnectionInfo()
 	if err != nil {
 		t.Fatalf("expected err to be nil: %v", err)
 	}
@@ -68,6 +68,10 @@ func newDB(t *testing.T) database.DB {
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
+	if err := db.Ping(); err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+
 	return database.NewShimDB(db)
 }
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/bicycolet/bicycolet/internal/db/database"
 	"github.com/bicycolet/bicycolet/internal/db/query"
-	"github.com/bicycolet/bicycolet/internal/testing"
+	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 )
 
 // Count returns the current number of rows.
@@ -54,13 +54,16 @@ func TestCount_Cases(t *testing.T) {
 // Return a new transaction against an in-memory postgres database with a single
 // test table and a few rows.
 func newTxForCount(t *testing.T) (database.Tx, func()) {
-	connInfo, err := testing.ConnectionInfo()
+	connInfo, err := internaltesting.ConnectionInfo()
 	if err != nil {
 		t.Fatalf("expected err to be nil: %v", err)
 	}
 	db, err := sql.Open(database.DriverName(), connInfo.String())
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
+	}
+	if err := db.Ping(); err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
 	}
 
 	_, err = db.Exec("CREATE TABLE test (id INTEGER)")
