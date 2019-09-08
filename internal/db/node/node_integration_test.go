@@ -10,8 +10,6 @@ import (
 	"github.com/bicycolet/bicycolet/internal/db/node"
 	"github.com/bicycolet/bicycolet/internal/fsys"
 	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
-
-	_ "github.com/lib/pq"
 )
 
 // When the node-local database is created from scratch, the value for the

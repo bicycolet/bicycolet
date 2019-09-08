@@ -4,7 +4,6 @@ package schema_test
 
 import (
 	"database/sql"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -14,8 +13,6 @@ import (
 	"github.com/bicycolet/bicycolet/internal/fsys"
 	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 	"github.com/pkg/errors"
-
-	_ "github.com/lib/pq"
 )
 
 func TestNewFromMap(t *testing.T) {
@@ -524,7 +521,6 @@ func newDB(t *testing.T) database.DB {
 	if err != nil {
 		t.Fatalf("expected err to be nil: %v", err)
 	}
-	fmt.Println("!!", connInfo.String())
 	db, err := sql.Open(database.DriverName(), connInfo.String())
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
