@@ -1,6 +1,7 @@
 package query
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"strings"
 
@@ -30,12 +31,20 @@ func SelectStrings(tx database.Tx, query string, args ...interface{}) ([]string,
 func SelectIntegers(tx database.Tx, query string, args ...interface{}) ([]int, error) {
 	var values []int
 	scan := func(rows database.Rows) error {
-		var value int
+		var value driver.Value
 		if err := rows.Scan(&value); err != nil {
 			return errors.WithStack(err)
 		}
-		values = append(values, value)
-		return nil
+		switch v := value.(type) {
+		case int:
+			values = append(values, v)
+			return nil
+		case int64:
+			values = append(values, int(v))
+			return nil
+		default:
+			return errors.Errorf("unexpected type: %T", value)
+		}
 	}
 
 	err := scanSingleColumn(tx, query, args, "INTEGER", scan)
@@ -87,8 +96,7 @@ func scanSingleColumn(tx database.Tx, query string, args []interface{}, typeName
 		}
 	}
 
-	err = rows.Err()
-	return errors.WithStack(err)
+	return errors.WithStack(rows.Err())
 }
 
 // Check that the given result set yields rows with a single column of a
@@ -107,7 +115,17 @@ func checkRowsHaveOneColumnOfSpecificType(rows database.Rows, typeName string) e
 	if actualTypeName == "" {
 		return nil
 	}
-	if actualTypeName != typeName {
+
+	// Postgres uses different bases types than what you use when you create
+	// the table with.
+	columnTypes := map[string]string{
+		"INT4":    "INTEGER",
+		"INTEGER": "INTEGER",
+	}
+	if _, ok := columnTypes[actualTypeName]; !ok {
+		return errors.Errorf("query type not found %q", actualTypeName)
+	}
+	if columnTypes[actualTypeName] != typeName {
 		return errors.Errorf("query yields %q column, not %q", actualTypeName, typeName)
 	}
 	return nil

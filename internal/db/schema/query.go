@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"database/sql/driver"
 	"io/ioutil"
 
 	"github.com/bicycolet/bicycolet/internal/db/database"
@@ -12,15 +13,20 @@ import (
 // StmtSchemaTableExists represents a query for checking if the schema table
 // exists.
 const StmtSchemaTableExists = `
-SELECT COUNT(name) FROM sqlite_master WHERE type = 'table' AND name = 'schema'
+SELECT EXISTS (
+	SELECT 1
+	FROM   information_schema.tables
+	WHERE  table_schema = 'schema_name'
+	AND    table_name = 'schema'
+)
 `
 
 // StmtCreateTable represents a query for creating a schema table.
 const StmtCreateTable = `
 CREATE TABLE schema (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id         SERIAL PRIMARY KEY,
     version    INTEGER NOT NULL,
-    updated_at DATETIME NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     UNIQUE (version)
 )
 `
@@ -58,11 +64,18 @@ func SchemaTableExists(tx database.Tx) (bool, error) {
 		return false, errors.Errorf("schema table query returned no rows")
 	}
 
-	var count int
-	if err := rows.Scan(&count); err != nil {
+	var value driver.Value
+	if err := rows.Scan(&value); err != nil {
 		return false, errors.WithStack(err)
 	}
-	return count == 1, nil
+	switch v := value.(type) {
+	case int:
+		return v == 1, nil
+	case bool:
+		return v, nil
+	default:
+		return false, errors.Errorf("unexpected type found: %T", value)
+	}
 }
 
 // Create the schema table.
