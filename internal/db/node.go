@@ -34,7 +34,7 @@ type QueryNode interface {
 
 type nodeTxBuilder func(database.Tx) *NodeTx
 
-// Node mediates access to the data stored in the node-local SQLite database.
+// Node mediates access to the data stored in the node-local postgres database.
 type Node struct {
 	transaction Transaction // Handle the transactions to the database
 	node        QueryNode

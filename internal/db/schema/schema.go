@@ -296,7 +296,7 @@ func checkAllUpdatesAreApplied(tx database.Tx, updates []Update) error {
 // Format the given SQL statement in a human-readable way.
 //
 // In particular make sure that each column definition in a CREATE TABLE clause
-// is in its own row, since SQLite dumps occasionally stuff more than one
+// is in its own row, since postgres dumps occasionally stuff more than one
 // column in the same line.
 func formatSQL(statement string) string {
 	lines := strings.Split(statement, "\n")

@@ -4,19 +4,20 @@ package query_test
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/bicycolet/bicycolet/internal/db/database"
 	"github.com/bicycolet/bicycolet/internal/db/query"
-	_ "github.com/lib/pq"
+	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 )
 
 func TestSelectConfig_Selects(t *testing.T) {
-	tx, close := newTxForConfig(t)
+	table, tx, close := newTxForConfig(t)
 	defer close()
 
-	values, err := query.SelectConfig(tx, "test", "")
+	values, err := query.SelectConfig(tx, table, "")
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
@@ -30,10 +31,10 @@ func TestSelectConfig_Selects(t *testing.T) {
 }
 
 func TestSelectConfig_WithFilters(t *testing.T) {
-	tx, close := newTxForConfig(t)
+	table, tx, close := newTxForConfig(t)
 	defer close()
 
-	values, err := query.SelectConfig(tx, "test", "key=?", "bar")
+	values, err := query.SelectConfig(tx, table, "key=$1", "bar")
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
@@ -47,16 +48,16 @@ func TestSelectConfig_WithFilters(t *testing.T) {
 
 // New keys are added to the table.
 func TestUpdateConfig_NewKeys(t *testing.T) {
-	tx, close := newTxForConfig(t)
+	table, tx, close := newTxForConfig(t)
 	defer close()
 
 	values := map[string]string{"foo": "y"}
-	err := query.UpdateConfig(tx, "test", values)
+	err := query.UpdateConfig(tx, table, values)
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
 
-	values, err = query.SelectConfig(tx, "test", "")
+	values, err = query.SelectConfig(tx, table, "")
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
@@ -71,17 +72,17 @@ func TestUpdateConfig_NewKeys(t *testing.T) {
 
 // Unset keys are deleted from the table.
 func TestDeleteConfig_Delete(t *testing.T) {
-	tx, close := newTxForConfig(t)
+	table, tx, close := newTxForConfig(t)
 	defer close()
 
 	values := map[string]string{"foo": ""}
 
-	err := query.UpdateConfig(tx, "test", values)
+	err := query.UpdateConfig(tx, table, values)
 
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
-	values, err = query.SelectConfig(tx, "test", "")
+	values, err = query.SelectConfig(tx, table, "")
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
@@ -93,20 +94,29 @@ func TestDeleteConfig_Delete(t *testing.T) {
 	}
 }
 
-// Return a new transaction against an in-memory SQLite database with a single
+// Return a new transaction against an in-memory postgres database with a single
 // test table populated with a few rows.
-func newTxForConfig(t *testing.T) (database.Tx, func()) {
-	db, err := sql.Open(database.DriverName(), connectionInfo())
+func newTxForConfig(t *testing.T) (string, database.Tx, func()) {
+	connInfo, err := internaltesting.ConnectionInfo()
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+	db, err := sql.Open(database.DriverName(), connInfo.String())
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+	if err := db.Ping(); err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+
+	table := internaltesting.RandomTableName()
+
+	_, err = db.Exec(fmt.Sprintf("CREATE TABLE %q (key TEXT NOT NULL, value TEXT)", table))
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
 
-	_, err = db.Exec("CREATE TABLE test (key TEXT NOT NULL, value TEXT)")
-	if err != nil {
-		t.Errorf("expected err to be nil: %v", err)
-	}
-
-	_, err = db.Exec("INSERT INTO test VALUES ('foo', 'x'), ('bar', 'zz')")
+	_, err = db.Exec(fmt.Sprintf("INSERT INTO %q VALUES ('foo', 'x'), ('bar', 'zz')", table))
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
 	}
@@ -116,7 +126,7 @@ func newTxForConfig(t *testing.T) (database.Tx, func()) {
 		t.Errorf("expected err to be nil: %v", err)
 	}
 
-	return tx, func() {
+	return table, tx, func() {
 		db.Close()
 	}
 }

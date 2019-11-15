@@ -58,6 +58,7 @@ func TestOpen(t *testing.T) {
 	deps := createNodeDeps(t, ctrl)
 	gomock.InOrder(
 		deps.databaseIO.EXPECT().Open(database.DriverName(), info.String()).Return(mockDB, nil),
+		mockDB.EXPECT().Ping().Return(nil),
 	)
 
 	err := deps.node.Open("/path/to/a/dir", info)
@@ -80,6 +81,7 @@ func TestOpenWithEmptyName(t *testing.T) {
 	deps := createNodeDeps(t, ctrl)
 	gomock.InOrder(
 		deps.databaseIO.EXPECT().Open(database.DriverName(), info.String()).Return(mockDB, nil),
+		mockDB.EXPECT().Ping().Return(nil),
 	)
 
 	err := deps.node.Open("", info)
@@ -125,6 +127,7 @@ func TestEnsureSchema(t *testing.T) {
 	deps := createNodeDeps(t, ctrl)
 	gomock.InOrder(
 		deps.databaseIO.EXPECT().Open(database.DriverName(), info.String()).Return(mockDB, nil),
+		mockDB.EXPECT().Ping().Return(nil),
 		deps.schemaProvider.EXPECT().Schema().Return(mockSchema),
 		mockSchema.EXPECT().File("/path/to/a/dir/patch.local.sql"),
 		mockSchema.EXPECT().Hook(gomock.Any()),

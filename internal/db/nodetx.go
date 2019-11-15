@@ -9,7 +9,7 @@ import (
 // It wraps low-level db.Tx objects and offers a high-level API to fetch and
 // update data.
 type NodeTx struct {
-	tx    database.Tx // Handle to a transaction in the node-level SQLite database.
+	tx    database.Tx // Handle to a transaction in the node-level postgres database.
 	query Query
 }
 

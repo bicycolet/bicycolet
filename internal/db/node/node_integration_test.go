@@ -9,6 +9,7 @@ import (
 	"github.com/bicycolet/bicycolet/internal/db/database"
 	"github.com/bicycolet/bicycolet/internal/db/node"
 	"github.com/bicycolet/bicycolet/internal/fsys"
+	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 )
 
 // When the node-local database is created from scratch, the value for the
@@ -22,10 +23,15 @@ func TestEnsureSchema_CreatedEmptyDB(t *testing.T) {
 	}
 	defer fs.RemoveAll(path)
 
-	node := node.New(fs)
-	err = node.Open(path)
+	connInfo, err := internaltesting.ConnectionInfo()
 	if err != nil {
-		t.Errorf("expected err to be nil: %v", err)
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+
+	node := node.New(fs)
+	err = node.Open(path, connInfo)
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
 	}
 	defer node.DB().Close()
 

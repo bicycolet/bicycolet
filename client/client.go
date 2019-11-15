@@ -34,28 +34,20 @@ func New(address string, options ...Option) (*Client, error) {
 	}, nil
 }
 
-// Info returns the information result from the daemon API
-func (c *Client) Info() Info {
-	return Info{
-		client: c,
-	}
-}
-
-func (c *Client) exec(
-	method, path string,
-	body interface{},
-	etag string,
+// Get will query the server using the client provided.
+func (c *Client) Get(
+	path string,
 	fn func(*client.Response, Metadata) error,
 ) error {
 	began := time.Now()
-	response, etag, err := c.client.Query(method, path, body, etag)
+	response, responseETag, err := c.client.Query("GET", path, nil, "")
 	if err != nil {
 		return errors.Wrap(err, "error requesting")
 	} else if response.StatusCode != 200 {
 		return errors.Errorf("invalid status code %d", response.StatusCode)
 	}
 	return fn(response, Metadata{
-		ETag:     etag,
+		ETag:     responseETag,
 		Duration: time.Since(began),
 	})
 }

@@ -4,7 +4,6 @@ package schema_test
 
 import (
 	"database/sql"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/bicycolet/bicycolet/internal/db/query"
 	"github.com/bicycolet/bicycolet/internal/db/schema"
 	"github.com/bicycolet/bicycolet/internal/fsys"
+	internaltesting "github.com/bicycolet/bicycolet/internal/testing"
 	"github.com/pkg/errors"
 )
 
@@ -515,11 +515,18 @@ func newFileSystem(t *testing.T) fsys.FileSystem {
 	return fsys.NewVirtualFileSystem()
 }
 
-// Return a new in-memory SQLite database.
+// Return a new in-memory postgres database.
 func newDB(t *testing.T) database.DB {
-	db, err := sql.Open(database.DriverName(), connectionInfo())
+	connInfo, err := internaltesting.ConnectionInfo()
+	if err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
+	}
+	db, err := sql.Open(database.DriverName(), connInfo.String())
 	if err != nil {
 		t.Errorf("expected err to be nil: %v", err)
+	}
+	if err := db.Ping(); err != nil {
+		t.Fatalf("expected err to be nil: %v", err)
 	}
 	return database.NewShimDB(db)
 }
@@ -565,16 +572,4 @@ func contains(a []string, b string) bool {
 		}
 	}
 	return false
-}
-
-func connectionInfo() string {
-	info := database.ConnectionInfo{
-		Host:     "localhost",
-		Port:     5435,
-		User:     "postgres",
-		Password: "postgres",
-		DBName:   "test",
-	}
-	fmt.Println(info.String())
-	return info.String()
 }

@@ -4,7 +4,26 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  lint:
+    docker:
+      - image: circleci/golang:1.12
+
+    working_directory: /go/src/github.com/bicycolet/bicycolet
+    steps:
+      - checkout
+
+      - run:
+          name: "Setup go mod"
+          command: |
+            echo 'export GO111MODULE=on' >> $BASH_ENV
+
+      - run: sudo apt update
+      - run: sudo apt install curl jq shellcheck make
+      - run: make setup
+      - run: cd test && ./main.sh static_analysis_go
+      - run: cd test && ./main.sh static_analysis_shell
+
+  test:
     docker:
       - image: circleci/golang:1.12
 
@@ -21,3 +40,26 @@ jobs:
       - run: sudo apt install curl jq shellcheck make
       - run: make setup
       - run: make check
+
+  integration:
+    docker:
+      - image: circleci/golang:1.12
+      - image: circleci/postgres:latest
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+
+    working_directory: /go/src/github.com/bicycolet/bicycolet
+    steps:
+      - checkout
+
+      - run:
+          name: "Setup go mod"
+          command: |
+            echo 'export GO111MODULE=on' >> $BASH_ENV
+
+      - run: sudo apt update
+      - run: sudo apt install curl jq shellcheck make
+      - run: make setup
+      - run: go test -v -tags "integration" ./...

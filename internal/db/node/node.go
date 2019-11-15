@@ -101,11 +101,17 @@ func (n *Node) Open(path string, connectionInfo database.ConnectionInfo) error {
 	// These are used to tune the transaction BEGIN behavior instead of using the
 	// similar "locking_mode" pragma (locking for the whole database connection).
 	db, err := n.databaseIO.Open(database.DriverName(), connectionInfo.String())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if err := db.Ping(); err != nil {
+		return errors.WithStack(err)
+	}
 
 	n.database = db
 	n.databasePath = path
 
-	return errors.WithStack(err)
+	return nil
 }
 
 // EnsureSchema applies all relevant schema updates to the node-local
