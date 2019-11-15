@@ -82,7 +82,7 @@ func (c *versionCmd) Run() clui.ExitCode {
 		logger = level.NewFilter(logger, logLevel)
 	}
 
-	client, err := getClient(c.address, logger)
+	client, err := getInfoClient(c.address, logger)
 	if err != nil {
 		return exit(c.ui, errors.WithStack(err).Error())
 	}
@@ -93,7 +93,7 @@ func (c *versionCmd) Run() clui.ExitCode {
 		g.Add(func() error {
 			serverVersion := "unreachable"
 			if client != nil {
-				result, err := client.Info().Get()
+				result, err := client.Get()
 				if err == nil {
 					serverVersion = result.Environment.ServerVersion
 				}

@@ -9,6 +9,8 @@ import (
 	"text/tabwriter"
 
 	"github.com/bicycolet/bicycolet/client"
+	"github.com/bicycolet/bicycolet/client/info"
+	pkgclient "github.com/bicycolet/bicycolet/pkg/client"
 	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
 	"github.com/spoke-d/clui"
@@ -139,4 +141,32 @@ func getClient(address string, logger log.Logger) (*client.Client, error) {
 		address,
 		client.WithLogger(log.WithPrefix(logger, "component", "client")),
 	)
+}
+
+func getInfoClient(address string, logger log.Logger) (*info.Info, error) {
+	client, err := getClient(address, logger)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return info.New(clientInfoShim{client: client}), nil
+}
+
+type clientInfoShim struct {
+	client *client.Client
+}
+
+func (s clientInfoShim) Get(url string, fn func(info.Response, info.Metadata) error) error {
+	return s.client.Get(url, func(res *pkgclient.Response, meta client.Metadata) error {
+		return fn(clientResponseShim{
+			response: res,
+		}, meta)
+	})
+}
+
+type clientResponseShim struct {
+	response *pkgclient.Response
+}
+
+func (s clientResponseShim) Metadata() json.RawMessage {
+	return s.response.Metadata
 }

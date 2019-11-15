@@ -1,26 +1,48 @@
-package client
+package info
 
 import (
 	"bytes"
 	"encoding/json"
 
 	"github.com/bicycolet/bicycolet/pkg/api/daemon/root"
-	"github.com/bicycolet/bicycolet/pkg/client"
 	"github.com/pkg/errors"
 )
+
+// Response represents a response from the server
+type Response interface {
+	Metadata() json.RawMessage
+}
+
+// Metadata represents the data associated with a request/response
+type Metadata interface{}
+
+// ResponseFn is an alias for a response callback
+type ResponseFn = func(Response, Metadata) error
+
+// Client represents a point of use root client
+type Client interface {
+	Get(url string, response ResponseFn) error
+}
 
 // Info represents a way of interacting with the daemon API, which is
 // responsible for getting the information from the daemon.
 type Info struct {
-	client *Client
+	client Client
+}
+
+// New creates a new info client for dealing with information requests.
+func New(client Client) *Info {
+	return &Info{
+		client: client,
+	}
 }
 
 // Get returns the information from the daemon API
 func (i Info) Get() (InfoResult, error) {
 	var result InfoResult
-	if err := i.client.exec("GET", "/1.0", nil, "", func(response *client.Response, meta Metadata) error {
+	if err := i.client.Get("/1.0", func(response Response, meta Metadata) error {
 		var server root.Server
-		decoder := json.NewDecoder(bytes.NewReader(response.Metadata))
+		decoder := json.NewDecoder(bytes.NewReader(response.Metadata()))
 		if err := decoder.Decode(&server); err != nil {
 			return errors.Wrap(err, "error parsing result")
 		}
