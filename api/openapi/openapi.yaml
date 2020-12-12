@@ -1,0 +1,56 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Bicycolet API
+  license:
+    name: GPL
+
+paths: {}
+
+components:
+  schemas:
+    Empty:
+      type: object
+      properties: {}
+    SyncError:
+      type: object
+      required:
+        - type
+        - error
+        - "error-code"
+      properties:
+        type:
+          type: string
+        error:
+          type: string
+        error-code:
+          type: string
+
+templates:
+  schemas:
+    Response:
+      type: object
+      required:
+        - type
+        - status
+        - "status-code"
+        - operation
+        - "error-code"
+        - error
+        - metadata
+      properties:
+        type:
+          type: string
+        status:
+          type: string
+        "status-code":
+          type: integer
+        operation:
+          type: string
+        "error-code":
+          type: integer
+        error:
+          type: string
+        metadata:
+          $ref: "{{.Ref}}"
+          
