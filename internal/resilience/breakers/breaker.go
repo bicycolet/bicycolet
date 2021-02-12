@@ -1,41 +1,34 @@
-package tokens
+package breakers
 
 import (
 	"time"
 
+	"github.com/bicycolet/bicycolet/internal/resilience/breakers/breaker"
 	"github.com/bicycolet/bicycolet/internal/resilience/tickers"
 	"github.com/bicycolet/bicycolet/internal/resilience/tickers/ticker"
-	"github.com/bicycolet/bicycolet/internal/resilience/tokens/bucket"
-	"github.com/bicycolet/bicycolet/internal/resilience/tokens/provision"
-	"github.com/bicycolet/bicycolet/internal/resilience/tokens/token"
 	"github.com/pkg/errors"
 )
 
-// TokenType defines the token we want to use for resilience.
-type TokenType int
+// BreakerType defines the circuit we want to use for resilience.
+type BreakerType int
 
 const (
-	// Provision token that describes what token to use.
-	Provision TokenType = iota
-
-	// Bucket token describes a token bucket that is stable.
-	Bucket
+	// Circuit circuit that describes what circuit to use.
+	Circuit BreakerType = iota
 )
 
-// New creates a new encoding token based on the type.
-func New(t TokenType, capacity int64, freq time.Duration, options ...Option) (token.Token, error) {
+// New creates a new encoding circuit based on the type.
+func New(t BreakerType, failures uint64, expiry time.Duration, options ...Option) (breaker.Breaker, error) {
 	opts := newOptions()
 	for _, option := range options {
 		option(opts)
 	}
 
 	switch t {
-	case Provision:
-		return provision.New(capacity, freq, opts.ticker), nil
-	case Bucket:
-		return bucket.New(capacity), nil
+	case Circuit:
+		return circuit.New(failures, expiry, opts.ticker), nil
 	default:
-		return nil, errors.Errorf("invalid token type %q", t)
+		return nil, errors.Errorf("invalid ticker type %q", t)
 	}
 }
 
@@ -43,11 +36,11 @@ func New(t TokenType, capacity int64, freq time.Duration, options ...Option) (to
 type Option func(*options)
 
 type options struct {
-	ticker token.Ticker
+	ticker breaker.Ticker
 }
 
 // WithTicker sets the ticker for token buckets that need a timer.
-func WithTicker(ticker token.Ticker) Option {
+func WithTicker(ticker breaker.Ticker) Option {
 	return func(options *options) {
 		options.ticker = ticker
 	}
