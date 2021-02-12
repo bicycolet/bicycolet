@@ -1,6 +1,7 @@
 package gates
 
 import (
+	"github.com/bicycolet/bicycolet/internal/resilience/gates/branch"
 	"github.com/bicycolet/bicycolet/internal/resilience/gates/gate"
 	"github.com/pkg/errors"
 )

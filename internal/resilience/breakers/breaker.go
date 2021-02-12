@@ -4,8 +4,9 @@ import (
 	"time"
 
 	"github.com/bicycolet/bicycolet/internal/resilience/breakers/breaker"
-	"github.com/bicycolet/bicycolet/internal/resilience/tickers"
-	"github.com/bicycolet/bicycolet/internal/resilience/tickers/ticker"
+	"github.com/bicycolet/bicycolet/internal/resilience/breakers/circuit"
+	"github.com/bicycolet/bicycolet/internal/resilience/timers"
+	"github.com/bicycolet/bicycolet/internal/resilience/timers/timer"
 	"github.com/pkg/errors"
 )
 
@@ -26,7 +27,7 @@ func New(t BreakerType, failures uint64, expiry time.Duration, options ...Option
 
 	switch t {
 	case Circuit:
-		return circuit.New(failures, expiry, opts.ticker), nil
+		return circuit.New(failures, expiry, opts.timer), nil
 	default:
 		return nil, errors.Errorf("invalid ticker type %q", t)
 	}
@@ -36,29 +37,29 @@ func New(t BreakerType, failures uint64, expiry time.Duration, options ...Option
 type Option func(*options)
 
 type options struct {
-	ticker breaker.Ticker
+	timer breaker.Timer
 }
 
-// WithTicker sets the ticker for token buckets that need a timer.
-func WithTicker(ticker breaker.Ticker) Option {
+// WithTimer sets the timer for token buckets that need a timer.
+func WithTimer(timer breaker.Timer) Option {
 	return func(options *options) {
-		options.ticker = ticker
+		options.timer = timer
 	}
 }
 
 // Create a options instance with default values.
 func newOptions() *options {
 	return &options{
-		ticker: defaultTicker{},
+		timer: defaultTimer{},
 	}
 }
 
-type defaultTicker struct{}
+type defaultTimer struct{}
 
-func (defaultTicker) New(d time.Duration, fn func()) ticker.Ticker {
-	t, err := tickers.New(tickers.Wall, d, fn)
+func (defaultTimer) New(d time.Duration, fn func()) timer.Timer {
+	t, err := timers.New(timers.Wall, d, fn)
 	if err != nil {
-		panic("programming error: expected ticker.")
+		panic("programming error: expected timer.")
 	}
 	return t
 }
