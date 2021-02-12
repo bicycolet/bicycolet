@@ -10,7 +10,7 @@ type Timer interface {
 	After() bool
 
 	// Reset the timer
-	Reset() error
+	Reset()
 }
 
 // Time is the value of a Timer.

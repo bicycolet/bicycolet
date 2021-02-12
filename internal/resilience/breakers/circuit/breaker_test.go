@@ -52,7 +52,7 @@ func TestBreaker(t *testing.T) {
 		called := false
 
 		circuit := New(1, time.Second, &stubTimer{})
-		circuit.Run(func() error {
+		_ = circuit.Run(func() error {
 			return errors.New("bad")
 		})
 
@@ -76,7 +76,7 @@ func TestBreaker(t *testing.T) {
 
 		timer := &stubTimer{}
 		circuit := New(1, expiryTimeout, timer)
-		circuit.Run(func() error {
+		_ = circuit.Run(func() error {
 			return errors.New("bad")
 		})
 
@@ -104,7 +104,7 @@ func TestBreakerTransitions(t *testing.T) {
 
 	// Make sure we trigger an open circuit
 	for i := 0; i < 3; i++ {
-		circuit.Run(func() error {
+		_ = circuit.Run(func() error {
 			return errors.New("bad")
 		})
 	}
@@ -126,7 +126,7 @@ func TestBreakerTransitions(t *testing.T) {
 
 	// Make sure we trigger an open circuit
 	for i := 0; i < 3; i++ {
-		circuit.Run(func() error {
+		_ = circuit.Run(func() error {
 			return errors.New("bad")
 		})
 	}

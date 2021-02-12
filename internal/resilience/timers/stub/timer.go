@@ -32,9 +32,7 @@ func (t *Timer) After() bool {
 }
 
 // Reset the timer
-func (t *Timer) Reset() error {
-	return nil
-}
+func (t *Timer) Reset() {}
 
 // Advance advances the time to call the next tick.
 func (t *Timer) Advance(c time.Duration) {

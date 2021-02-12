@@ -51,7 +51,7 @@ func TestProvision(t *testing.T) {
 	})
 }
 
-func ExampleProvision() {
+func ExampleToken() {
 	ticker := &stubTicker{}
 	tokens := New(2, time.Millisecond, ticker)
 	fmt.Println(tokens.Take(1))

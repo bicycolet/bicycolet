@@ -43,10 +43,9 @@ func (t *Timer) After() bool {
 }
 
 // Reset the timer
-func (t *Timer) Reset() error {
+func (t *Timer) Reset() {
 	t.timer.Stop()
 	t.timer.Reset(t.expiry)
-	return nil
 }
 
 // Time is the value of a Timer.
