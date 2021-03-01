@@ -10,4 +10,11 @@ type Where string
 type Statements interface {
 	// Count returns the number of rows in the given table.
 	Count(Table, Where) Query
+
+	// Delete removes the row identified by the given ID.
+	Delete(Table) Query
+
+	// UpsertObject inserts or replaces a new row with the given column values,
+	// to the given table using columns order.
+	UpsertObject(Table, []string) Query
 }

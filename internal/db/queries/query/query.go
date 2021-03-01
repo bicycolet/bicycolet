@@ -3,6 +3,7 @@ package query
 // Query executes a query that returns rows, typically a SELECT.
 type Query interface {
 	Run(Txn, ...interface{}) (Rows, error)
+	Exec(Txn, ...interface{}) (Result, error)
 }
 
 // Rows is the result of a query. Its cursor starts before the first row
@@ -79,4 +80,12 @@ type Rows interface {
 	// the Rows are closed automatically and it will suffice to check the
 	// result of Err. Close is idempotent and does not affect the result of Err.
 	Close() error
+}
+
+// A Result summarizes an executed SQL command.
+type Result interface {
+	// RowsAffected returns the number of rows affected by an
+	// update, insert, or delete. Not every database or database
+	// driver may support this.
+	RowsAffected() (int64, error)
 }

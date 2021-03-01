@@ -4,5 +4,8 @@ package query
 // A transaction must end with a call to Commit or Rollback.
 type Txn interface {
 	// Query executes a query that returns rows, typically a SELECT.
-	Query(query string, args ...interface{}) (Rows, error)
+	Query(string, ...interface{}) (Rows, error)
+
+	// Exec executes a query that returns a result, typically an INSERT.
+	Exec(string, ...interface{}) (Result, error)
 }

@@ -85,3 +85,8 @@ type shimTxn struct {
 func (s shimTxn) Query(query string, args ...interface{}) (query.Rows, error) {
 	return s.txn.Query(query, args...)
 }
+
+// Query executes a query that returns rows, typically a SELECT.
+func (s shimTxn) Exec(query string, args ...interface{}) (query.Result, error) {
+	return s.txn.Exec(query, args...)
+}

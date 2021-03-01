@@ -47,6 +47,34 @@ func (mr *MockStatementsMockRecorder) Count(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockStatements)(nil).Count), arg0, arg1)
 }
 
+// Delete mocks base method
+func (m *MockStatements) Delete(arg0 query.Table) query.Query {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret0, _ := ret[0].(query.Query)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockStatementsMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStatements)(nil).Delete), arg0)
+}
+
+// UpsertObject mocks base method
+func (m *MockStatements) UpsertObject(arg0 query.Table, arg1 []string) query.Query {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertObject", arg0, arg1)
+	ret0, _ := ret[0].(query.Query)
+	return ret0
+}
+
+// UpsertObject indicates an expected call of UpsertObject
+func (mr *MockStatementsMockRecorder) UpsertObject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertObject", reflect.TypeOf((*MockStatements)(nil).UpsertObject), arg0, arg1)
+}
+
 // MockQuery is a mock of Query interface
 type MockQuery struct {
 	ctrl     *gomock.Controller
@@ -68,6 +96,26 @@ func NewMockQuery(ctrl *gomock.Controller) *MockQuery {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockQuery) EXPECT() *MockQueryMockRecorder {
 	return m.recorder
+}
+
+// Exec mocks base method
+func (m *MockQuery) Exec(arg0 query.Txn, arg1 ...interface{}) (query.Result, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0}
+	for _, a := range arg1 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Exec", varargs...)
+	ret0, _ := ret[0].(query.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Exec indicates an expected call of Exec
+func (mr *MockQueryMockRecorder) Exec(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0}, arg1...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockQuery)(nil).Exec), varargs...)
 }
 
 // Run mocks base method
