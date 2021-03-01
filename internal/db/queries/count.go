@@ -1,20 +1,15 @@
-package sqlite
+package queries
 
 import (
 	"github.com/bicycolet/bicycolet/internal/db/queries/query"
 	"github.com/pkg/errors"
 )
 
-// Query performs queries against the underlying database.
-type Query struct {
-	statements query.Statements
-}
-
 // Count returns the number of rows in the given table.
 func (q *Query) Count(tx query.Txn, table query.Table, where query.Where, args ...interface{}) (int, error) {
 	rows, err := q.statements.Count(table, where).Run(tx, args...)
 	if err != nil {
-		return -1, err
+		return -1, errors.WithStack(err)
 	}
 	defer func() { _ = rows.Close() }()
 
