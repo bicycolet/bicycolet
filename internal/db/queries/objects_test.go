@@ -118,7 +118,7 @@ func TestUpsertObject(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().UpsertObject(query.Table("schema"), []string{"id", "name"}).Return(mockQuery),
+		mockStatements.EXPECT().Upsert(query.Table("schema"), []string{"id", "name"}).Return(mockQuery),
 		mockQuery.EXPECT().Exec(mockTx, []interface{}{1, "fred"}).Return(mockResult, nil),
 		mockResult.EXPECT().RowsAffected().Return(int64(1), nil),
 	)
@@ -133,18 +133,18 @@ func TestUpsertObject(t *testing.T) {
 	}
 }
 
-/*
 func TestUpsertObjectWithExecFailure(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockTx := mocks.NewMockTxn(ctrl)
-	mockResult := mocks.NewMockResult(ctrl)
 	mockQuery := mocks.NewMockQuery(ctrl)
+	mockResult := mocks.NewMockResult(ctrl)
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("INSERT OR REPLACE INTO schema (id, name) VALUES (?, ?)", []interface{}{1, "fred"}).Return(mockResult, errors.New("bad")),
+		mockStatements.EXPECT().Upsert(query.Table("schema"), []string{"id", "name"}).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, []interface{}{1, "fred"}).Return(mockResult, errors.New("bad")),
 	)
 
 	queries := &Query{
@@ -156,18 +156,19 @@ func TestUpsertObjectWithExecFailure(t *testing.T) {
 	}
 }
 
-func TestUpsertObjectWithLastInsertedIdFailure(t *testing.T) {
+func TestUpsertObjectWithLastRowsAffectedFailure(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockTx := mocks.NewMockTxn(ctrl)
-	mockResult := mocks.NewMockResult(ctrl)
 	mockQuery := mocks.NewMockQuery(ctrl)
+	mockResult := mocks.NewMockResult(ctrl)
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("INSERT OR REPLACE INTO schema (id, name) VALUES (?, ?)", []interface{}{1, "fred"}).Return(mockResult, nil),
-		mockResult.EXPECT().LastInsertId().Return(int64(5), errors.New("bad")),
+		mockStatements.EXPECT().Upsert(query.Table("schema"), []string{"id", "name"}).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, []interface{}{1, "fred"}).Return(mockResult, nil),
+		mockResult.EXPECT().RowsAffected().Return(int64(1), errors.New("bad")),
 	)
 
 	queries := &Query{
@@ -221,7 +222,8 @@ func TestDeleteObject(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("DELETE FROM schema WHERE id=?", int64(1)).Return(mockResult, nil),
+		mockStatements.EXPECT().Delete(query.Table("schema")).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, int64(1)).Return(mockResult, nil),
 		mockResult.EXPECT().RowsAffected().Return(int64(1), nil),
 	)
 
@@ -236,7 +238,6 @@ func TestDeleteObject(t *testing.T) {
 		t.Errorf("expected: %v, actual: %v", expected, actual)
 	}
 }
-
 func TestDeleteObjectWithExecFailure(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -247,7 +248,8 @@ func TestDeleteObjectWithExecFailure(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("DELETE FROM schema WHERE id=?", int64(1)).Return(mockResult, errors.New("bad")),
+		mockStatements.EXPECT().Delete(query.Table("schema")).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, int64(1)).Return(mockResult, errors.New("bad")),
 	)
 
 	queries := &Query{
@@ -269,7 +271,8 @@ func TestDeleteObjectWithRowsAffectedFailure(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("DELETE FROM schema WHERE id=?", int64(1)).Return(mockResult, nil),
+		mockStatements.EXPECT().Delete(query.Table("schema")).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, int64(1)).Return(mockResult, nil),
 		mockResult.EXPECT().RowsAffected().Return(int64(1), errors.New("bad")),
 	)
 
@@ -292,7 +295,8 @@ func TestDeleteObjectWithTooManyRowsAffected(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockTx.EXPECT().Exec("DELETE FROM schema WHERE id=?", int64(1)).Return(mockResult, nil),
+		mockStatements.EXPECT().Delete(query.Table("schema")).Return(mockQuery),
+		mockQuery.EXPECT().Exec(mockTx, int64(1)).Return(mockResult, nil),
 		mockResult.EXPECT().RowsAffected().Return(int64(2), nil),
 	)
 
@@ -304,4 +308,3 @@ func TestDeleteObjectWithTooManyRowsAffected(t *testing.T) {
 		t.Errorf("expected err not to be nil")
 	}
 }
-*/

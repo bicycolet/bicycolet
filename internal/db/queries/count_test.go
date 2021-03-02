@@ -19,8 +19,10 @@ func TestCount(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, nil),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, nil),
 		mockRows.EXPECT().Next().Return(true),
 		mockRows.EXPECT().Scan(gomock.Any()).Do(func(x *int) error {
 			*x = 1
@@ -34,7 +36,7 @@ func TestCount(t *testing.T) {
 	queries := &Query{
 		statements: mockStatements,
 	}
-	count, err := queries.Count(mockTx, "schema", "a=b")
+	count, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err != nil {
 		t.Errorf("expected err to be nil")
 	}
@@ -53,14 +55,16 @@ func TestCountWithQueryFailure(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, errors.New("bad")),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, errors.New("bad")),
 	)
 
 	queries := &Query{
 		statements: mockStatements,
 	}
-	_, err := queries.Count(mockTx, "schema", "a=b")
+	_, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err == nil {
 		t.Errorf("expected err not to be nil")
 	}
@@ -76,8 +80,10 @@ func TestCountWithNoNext(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, nil),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, nil),
 		mockRows.EXPECT().Next().Return(false),
 		mockRows.EXPECT().Close().Return(nil),
 	)
@@ -85,7 +91,7 @@ func TestCountWithNoNext(t *testing.T) {
 	queries := &Query{
 		statements: mockStatements,
 	}
-	_, err := queries.Count(mockTx, "schema", "a=b")
+	_, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err == nil {
 		t.Errorf("expected err not to be nil")
 	}
@@ -101,8 +107,10 @@ func TestCountWithScanFailure(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, nil),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, nil),
 		mockRows.EXPECT().Next().Return(true),
 		mockRows.EXPECT().Scan(gomock.Any()).Do(func(x *int) error {
 			*x = 1
@@ -114,7 +122,7 @@ func TestCountWithScanFailure(t *testing.T) {
 	queries := &Query{
 		statements: mockStatements,
 	}
-	_, err := queries.Count(mockTx, "schema", "a=b")
+	_, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err == nil {
 		t.Errorf("expected err not to be nil")
 	}
@@ -130,8 +138,10 @@ func TestCountWithMoreRows(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, nil),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, nil),
 		mockRows.EXPECT().Next().Return(true),
 		mockRows.EXPECT().Scan(gomock.Any()).Do(func(x *int) error {
 			*x = 1
@@ -144,7 +154,7 @@ func TestCountWithMoreRows(t *testing.T) {
 	queries := &Query{
 		statements: mockStatements,
 	}
-	_, err := queries.Count(mockTx, "schema", "a=b")
+	_, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err == nil {
 		t.Errorf("expected err not to be nil")
 	}
@@ -160,8 +170,10 @@ func TestCountWithErrFailure(t *testing.T) {
 	mockStatements := mocks.NewMockStatements(ctrl)
 
 	gomock.InOrder(
-		mockStatements.EXPECT().Count(query.Table("schema"), query.Where("a=b")).Return(mockQuery),
-		mockQuery.EXPECT().Run(mockTx).Return(mockRows, nil),
+		mockStatements.EXPECT().Op(query.Equal).Return("="),
+		mockStatements.EXPECT().Params(1).Return("(?)"),
+		mockStatements.EXPECT().Count(query.Table("schema"), equals("a", "b")).Return(mockQuery),
+		mockQuery.EXPECT().Run(mockTx, "b").Return(mockRows, nil),
 		mockRows.EXPECT().Next().Return(true),
 		mockRows.EXPECT().Scan(gomock.Any()).Do(func(x *int) error {
 			*x = 1
@@ -175,8 +187,16 @@ func TestCountWithErrFailure(t *testing.T) {
 	queries := &Query{
 		statements: mockStatements,
 	}
-	_, err := queries.Count(mockTx, "schema", "a=b")
+	_, err := queries.Count(mockTx, "schema", query.Equals("a", "b"))
 	if err == nil {
 		t.Errorf("expected err not to be nil")
+	}
+}
+
+func equals(a, b string) query.Expression {
+	return query.Statement{
+		Name:  a,
+		Value: b,
+		Op:    query.Equal,
 	}
 }

@@ -61,18 +61,60 @@ func (mr *MockStatementsMockRecorder) Delete(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStatements)(nil).Delete), arg0)
 }
 
-// UpsertObject mocks base method
-func (m *MockStatements) UpsertObject(arg0 query.Table, arg1 []string) query.Query {
+// ExpressionOp mocks base method
+func (m *MockStatements) ExpressionOp(arg0 query.ExpressionOperatorType) string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpsertObject", arg0, arg1)
+	ret := m.ctrl.Call(m, "ExpressionOp", arg0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// ExpressionOp indicates an expected call of ExpressionOp
+func (mr *MockStatementsMockRecorder) ExpressionOp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExpressionOp", reflect.TypeOf((*MockStatements)(nil).ExpressionOp), arg0)
+}
+
+// Op mocks base method
+func (m *MockStatements) Op(arg0 query.OperatorType) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Op", arg0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Op indicates an expected call of Op
+func (mr *MockStatementsMockRecorder) Op(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Op", reflect.TypeOf((*MockStatements)(nil).Op), arg0)
+}
+
+// Params mocks base method
+func (m *MockStatements) Params(arg0 int) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Params", arg0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Params indicates an expected call of Params
+func (mr *MockStatementsMockRecorder) Params(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Params", reflect.TypeOf((*MockStatements)(nil).Params), arg0)
+}
+
+// Upsert mocks base method
+func (m *MockStatements) Upsert(arg0 query.Table, arg1 []string) query.Query {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Upsert", arg0, arg1)
 	ret0, _ := ret[0].(query.Query)
 	return ret0
 }
 
-// UpsertObject indicates an expected call of UpsertObject
-func (mr *MockStatementsMockRecorder) UpsertObject(arg0, arg1 interface{}) *gomock.Call {
+// Upsert indicates an expected call of Upsert
+func (mr *MockStatementsMockRecorder) Upsert(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertObject", reflect.TypeOf((*MockStatements)(nil).UpsertObject), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upsert", reflect.TypeOf((*MockStatements)(nil).Upsert), arg0, arg1)
 }
 
 // MockQuery is a mock of Query interface

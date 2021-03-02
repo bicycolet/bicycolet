@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/bicycolet/bicycolet/internal/db/queries/sqlite"
+
 	"github.com/bicycolet/bicycolet/internal/db/queries"
 	"github.com/bicycolet/bicycolet/internal/db/queries/query"
 	_ "github.com/mattn/go-sqlite3"
@@ -14,33 +16,34 @@ import (
 func TestCount_Cases(t *testing.T) {
 	cases := []struct {
 		where query.Where
-		args  []interface{}
 		count int
 	}{
 		{
-			"id=?",
-			[]interface{}{999},
+			query.Equals("id", 0),
 			0,
 		},
 		{
-			"id=?",
-			[]interface{}{1},
+			query.Equals("id", 1),
 			1,
 		},
 		{
-			"",
-			[]interface{}{},
-			2,
+			query.Equals("id", 2),
+			1,
+		},
+		{
+			query.Equals("id", 3),
+			0,
 		},
 	}
 	for _, c := range cases {
-		t.Run(fmt.Sprintf("count %d", c.count), func(t *testing.T) {
+		_, a := c.where.Build(sqlite.Statements{})
+		t.Run(fmt.Sprintf("count %v", a), func(t *testing.T) {
 			tx := newTxForCount(t)
 			queries, err := queries.New(queries.SQLite)
 			if err != nil {
 				t.Errorf("expected err to be nil: %v", err)
 			}
-			count, err := queries.Count(tx, "test", c.where, c.args...)
+			count, err := queries.Count(tx, "test", c.where)
 			if err != nil {
 				t.Errorf("expected err to be nil: %v", err)
 			}

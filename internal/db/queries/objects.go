@@ -36,7 +36,7 @@ func (q *Query) UpsertObject(tx query.Txn, table query.Table, columns []string, 
 		return errors.Errorf("columns length does not match values length")
 	}
 
-	result, err := q.statements.UpsertObject(table, columns).Exec(tx, values...)
+	result, err := q.statements.Upsert(table, columns).Exec(tx, values...)
 	if err != nil {
 		return errors.WithStack(err)
 	}

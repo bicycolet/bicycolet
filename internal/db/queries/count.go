@@ -7,7 +7,8 @@ import (
 
 // Count returns the number of rows in the given table.
 func (q *Query) Count(tx query.Txn, table query.Table, where query.Where, args ...interface{}) (int, error) {
-	rows, err := q.statements.Count(table, where).Run(tx, args...)
+	_, values := where.Build(q.statements)
+	rows, err := q.statements.Count(table, where).Run(tx, append(values, args...)...)
 	if err != nil {
 		return -1, errors.WithStack(err)
 	}

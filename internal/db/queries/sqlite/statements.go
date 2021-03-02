@@ -11,10 +11,11 @@ import (
 type Statements struct{}
 
 // Count defines a generic count statement.
-func (Statements) Count(table query.Table, where query.Where) query.Query {
+func (s Statements) Count(table query.Table, where query.Where) query.Query {
 	stmt := fmt.Sprintf("SELECT COUNT(*) FROM %s", table)
-	if where != "" {
-		stmt += fmt.Sprintf(" WHERE %s", where)
+	if where != nil {
+		e, _ := where.Build(s)
+		stmt += fmt.Sprintf(" WHERE %s", e)
 	}
 
 	return queryRunner{
@@ -32,11 +33,24 @@ func (Statements) Delete(table query.Table) query.Query {
 	}
 }
 
-// UpsertObject inserts or replaces a new row with the given column values, to
+// Upsert inserts or replaces a new row with the given column values, to
 // the given table using columns order.
-func (s Statements) UpsertObject(table query.Table, columns []string) query.Query {
+func (s Statements) Upsert(table query.Table, columns []string) query.Query {
 	stmt := fmt.Sprintf("INSERT OR REPLACE INTO %s (%s) VALUES %s",
 		table, strings.Join(columns, ", "), s.Params(len(columns)))
+
+	return queryRunner{
+		stmt: stmt,
+	}
+}
+
+// SelectKV returns a query for selecting key values by namespace.
+func (s Statements) SelectKV(table query.Table, where query.Where) query.Query {
+	stmt := fmt.Sprintf("SELECT namespace, key, value FROM %s", table)
+	if where != nil {
+		e, _ := where.Build(s)
+		stmt += fmt.Sprintf(" WHERE %s", e)
+	}
 
 	return queryRunner{
 		stmt: stmt,
@@ -52,6 +66,30 @@ func (Statements) Params(n int) string {
 		tokens[i] = "?"
 	}
 	return fmt.Sprintf("(%s)", strings.Join(tokens, ", "))
+}
+
+// Op returns the operator type as a string.
+func (Statements) Op(op query.OperatorType) string {
+	switch op {
+	case query.Equal:
+		return "="
+	default:
+		panic("unexpected op type")
+	}
+}
+
+// ExpressionOp returns the expression operator type as a string.
+func (Statements) ExpressionOp(op query.ExpressionOperatorType) string {
+	switch op {
+	case query.AND:
+		return "AND"
+	case query.OR:
+		return "OR"
+	case query.NOT:
+		return "NOT"
+	default:
+		panic("unexpected op type")
+	}
 }
 
 type queryRunner struct {
